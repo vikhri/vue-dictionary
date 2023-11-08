@@ -1,4 +1,5 @@
 <template>
+  <h1>VUE Dictionary</h1>
   <InputField></InputField>
   <LoadingBar v-if="isLoading"></LoadingBar>
   <p class="errorMessage" v-if="errorMessage">{{ errorMessage }}</p>
@@ -37,42 +38,36 @@ export default defineComponent({
   },
   // emits: ["meaningRequest"],
   methods: {
-    getData(word) {
-
+    async getData(word) {
       this.isLoading = true;
       this.errorMessage = null;
 
+      try {
+        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
 
-      fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
-        .then((res) => {
-          console.log(res);
-          if (res.ok) {
-            return res.json();
-          }
-          if(res.status === 404) {
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            const newData = data[0];
             this.isLoading = false;
-            this.errorMessage = 'Not found';
+
+            this.MeaningData.word = newData.word;
+            this.MeaningData.trans = newData.phonetic || newData.phonetics.find(item => item.text).text;
+            this.MeaningData.meanings = newData.meanings;
+            this.MeaningData.audio = newData.phonetics.find(item => item.audio !== '').audio;
           }
-        })
-        .then((data) => {
-          if (data === undefined) return;
-          const newData = data[0];
-
+        } else if (response.status === 404) {
           this.isLoading = false;
-
-          this.MeaningData.word = newData.word;
-          this.MeaningData.trans = newData.phonetic || newData.phonetics.find(item => item.text).text;
-          this.MeaningData.meanings = newData.meanings;
-          this.MeaningData.audio = newData.phonetics.find(item => item.audio !== '').audio;
-
-          console.log(newData);
-        }).catch((error) => {
-          console.log(error)
-          this.isLoading = false;
-          this.errorMessage = 'Fail to fetch data. Try again later';
-          })
-
-    },
+          this.errorMessage = 'Not found';
+        } else {
+          throw new Error('Failed to fetch data');
+        }
+      }
+      catch (error) {
+        this.isLoading = false;
+        this.errorMessage = 'Fail to fetch data. Try again later';
+      }
+    }
   }
 
 })
@@ -84,6 +79,13 @@ export default defineComponent({
 
 
 <style scoped>
+h1 {
+  font-size: 3em;
+  font-weight: 700;
+  color: #a00078;
+  padding: 0 20px 30px;
+}
+
 p {
   color: #1a1a1a;
 }
