@@ -1,5 +1,5 @@
 <template>
-  <form class="search-form container" @submit.prevent="submitSearch(getData)">
+  <form class="search-form container" :class="{ 'is-empty': isEmpty }" @submit.prevent="submitSearch(getData)">
       <input class="search-form__input" type="text" ref="SearchInput" placeholder="Enter a word in English">
     <button class="search-form__button" >
       <svg class="search-form__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
@@ -7,6 +7,7 @@
       </svg>
     </button>
   </form>
+  <p v-if="isEmpty" class="error">Enter a word</p>
 </template>
 
 <script>
@@ -15,6 +16,7 @@ import {inject} from "vue";
 export default {
   data() {
     return {
+      isEmpty: false,
     }
   },
   inject: ["getData"],
@@ -22,13 +24,22 @@ export default {
   submitSearch(getDataFunc) {
 
     // Валидация пустого поля
+    if (this.$refs.SearchInput.value === '') {
+      this.isEmpty = true
 
-    const SearchInput = this.$refs.SearchInput.value;
-    console.log(SearchInput);
+      return;
+    }
 
-    getDataFunc(SearchInput);
+    else {
+      this.isEmpty = false;
+      const SearchInput = this.$refs.SearchInput.value;
+      console.log(SearchInput);
 
-    this.$refs.SearchInput.value = '';
+      getDataFunc(SearchInput);
+
+      this.$refs.SearchInput.value = '';
+    }
+
   }
   },
 }
@@ -44,6 +55,7 @@ export default {
     margin: 0 auto;
     border: 1px solid black;
     border-radius: 4px;
+    transition: border-color 500ms;
   }
 
   .search-form__input {
@@ -79,6 +91,15 @@ export default {
     width: 20px;
     height: 20px;
     fill: #1a1a1a;
+  }
+
+  .is-empty {
+    border-color: red;
+  }
+
+  .error {
+    color: red;
+    font-size: 0.7em;
   }
 
 </style>
