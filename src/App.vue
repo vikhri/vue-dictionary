@@ -58,7 +58,7 @@ export default defineComponent({
           }
         } else if (response.status === 404) {
           this.isLoading = false;
-          this.errorMessage = 'Not found';
+          this.errorMessage = 'The word not found';
         } else {
           throw new Error('Failed to fetch data');
         }
