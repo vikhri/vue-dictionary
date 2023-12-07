@@ -1,3 +1,3 @@
-# TO run project: 
+# To run project: 
 
 ```vite```
